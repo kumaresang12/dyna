@@ -42,17 +42,7 @@ jobs:
           mkdir -p ${{ env.EXPORT_DIR }}
           pwd
           
-      - name: Find the terrform-provider-dynatrace executable
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: |
-          pwd
-          PROVIDER_BIN=$(find .terraform/providers/registry.terraform.io/dynatrace-oss/dynatrace \
-            -type f \
-            -name "terraform-provider-dynatrace*" | head -n 1)
-          echo "Provider Binary: $PROVIDER_BIN"
-          pwd
-
-      - name: Export Dynatrace Configuration using terraform-provider-dynatrace
+      - name: Find the terrform-provider-dynatrace executable and Export Dynatrace Configuration using terraform-provider-dynatrace
         working-directory: ${{ env.TF_WORKING_DIR }}
         env:
           DYNATRACE_API_URL: ${{ secrets.DYNATRACE_API_URL }}
@@ -60,7 +50,12 @@ jobs:
           DT_ACCOUNT_ID: ${{ secrets.DT_ACCOUNT_ID }}
         run: |
           pwd
-          chmod +x "$PROVIDER_BIN"
+          PROVIDER_BIN=$(find .terraform/providers/registry.terraform.io/dynatrace-oss/dynatrace \
+            -type f \
+            -name "terraform-provider-dynatrace*" | head -n 1)
+          echo "Provider Binary: $PROVIDER_BIN"
+          pwd
+          #chmod +x "$PROVIDER_BIN"
           "$PROVIDER_BIN" export --output ${{ env.EXPORT_DIR }}
           
       - name: Create Archive of the backup to upload into Azure blob
