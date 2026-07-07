@@ -39,6 +39,7 @@ jobs:
       - name: Create Export Directory as dynatrace_backup
         run: |
           mkdir -p ${{ env.EXPORT_DIR }}
+          cd ${{ env.TF_WORKING_DIR }}
 
       - name: Export Dynatrace Configuration using terraform-provider-dynatrace
         env:
