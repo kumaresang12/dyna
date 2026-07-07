@@ -18,16 +18,24 @@ variable "backup_dir" {
   default = "dynatrace_backup"
 }
 
+locals {
+  timestamp = formatdate("YYYYMMDD-hhmmss", timestamp())
+  export_dir = "${var.backup_dir}/${local.timestamp}"
+}
+
 resource "null_resource" "dynatrace_config_export" {
   triggers = {
     always_run = timestamp()
   }
 
-  provisioner "local-exec" {
+ provisioner "local-exec" {
+   environment = {
+     DYNATRACE_TARGET_FOLDER = local.export_dir
+   }
     command = <<EOT
 set -e
 
-mkdir -p ${var.backup_dir}
+mkdir -p $DYNATRACE_TARGET_FOLDER
 
 export DYNATRACE_TARGET_FOLDER="${var.backup_dir}/$(date +'%Y%m%d-%H%M%S')"
 
@@ -38,6 +46,10 @@ EOT
   }
 }
 
-output "backup_location" {
-  value = var.backup_dir
+output "export_dir" {
+  value = local.export_dir
+}
+
+output "timestamp" {
+  value = local.timestamp
 }
