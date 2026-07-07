@@ -1,4 +1,3 @@
-
 name: Dynatrace Configuration Backup
 
 on:
@@ -16,7 +15,6 @@ env:
 jobs:
   dynatrace-backup:
     runs-on: self-hosted
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
