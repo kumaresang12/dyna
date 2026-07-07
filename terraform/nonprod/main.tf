@@ -29,7 +29,7 @@ set -e
 
 mkdir -p ${var.backup_dir}
 
-export DYNATRACE_TARGET_FOLDER="${var.backup_dir}/$(date +%F)"
+export DYNATRACE_TARGET_FOLDER="${var.backup_dir}/$(date +'%Y%m%d-%H%M%S')"
 
 PROVIDER_BIN=$(find .terraform/providers/registry.terraform.io/dynatrace-oss/dynatrace -type f -name "terraform-provider-dynatrace*" | head -n 1)
 
