@@ -33,7 +33,7 @@ export DYNATRACE_TARGET_FOLDER="${var.backup_dir}/$(date +'%Y%m%d-%H%M%S')"
 
 PROVIDER_BIN=$(find .terraform/providers/registry.terraform.io/dynatrace-oss/dynatrace -type f -name "terraform-provider-dynatrace*" | head -n 1)
 
-"$PROVIDER_BIN" -export -ref -id -flat
+"$PROVIDER_BIN" -export --output 
 EOT
   }
 }
