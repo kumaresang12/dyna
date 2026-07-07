@@ -17,7 +17,8 @@ jobs:
         uses: hashicorp/setup-terraform@v4
 
       - name: Verify Terraform Version
-        uses: terraform version
+        run: |
+          terraform version
 
       - name: Initiate Terraform using terraform init 
         working-directory: ${{ env.TF_WORKING_DIR }}
