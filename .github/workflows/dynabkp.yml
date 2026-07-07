@@ -66,7 +66,7 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
           BACKUP_FILE="dynatrace-config-${TIMESTAMP}.tar.gz"
-          tar -czf "$BACKUP_FILE" -C "EXPORT_DIR".
+          tar -czf "$BACKUP_FILE" ${{ env.TF_WORKING_DIR }}/${EXPORT_DIR}/${TIMESTAMP}/modules/*
           echo "BACKUP_FILE=$BACKUP_FILE" >> $GITHUB_ENV
           
       - name: Azure Login to upload the configuration into blob storage
