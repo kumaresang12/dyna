@@ -1,70 +1,61 @@
-name: Dynatrace Configuration Backup
+name: Dynatrace Configuration Backup and upload in Azure Blob storage 
+'on':
+    workflow_dispatch:
 
-on:
-#  schedule:
-#    - cron: '0 2 * * *'
-  workflow_dispatch:
-
-permissions:
+permission:
   contents: read
 
 env:
   TF_WORKING_DIR: terraform/nonprod
-  EXPORT_DIR: dynatrace-backup
+  EXPORT_DIR: dynatrace_backup
 
 jobs:
   dynatrace-backup:
     runs-on: self-hosted
     steps:
-      - name: Checkout Repository
+      - name: Checkout Repository 
         uses: actions/checkout@v4
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v4
 
       - name: Verify Terraform Version
-        run: terraform version
+        uses: terraform version
 
-      - name: Terraform Init
+      - name: Initiate Terraform using terraform init 
         working-directory: ${{ env.TF_WORKING_DIR }}
         env:
           DYNATRACE_API_URL: ${{ secrets.DYNATRACE_API_URL }}
           DYNATRACE_API_TOKEN: ${{ secrets.DYNATRACE_API_TOKEN }}
           DT_ACCOUNT_ID: ${{ secrets.DT_ACCOUNT_ID }}
         run: |
-          terraform init
+        terraform init
 
-      - name: Create Export Directory
+      - name: Create Export Directory as dynatrace_backup
         run: |
           mkdir -p ${{ env.EXPORT_DIR }}
 
-       - name: Export Dynatrace Configuration
+      - name: Export Dynatrace Configuration using terraform-provider-dynatrace
         env:
           DYNATRACE_API_URL: ${{ secrets.DYNATRACE_API_URL }}
           DYNATRACE_API_TOKEN: ${{ secrets.DYNATRACE_API_TOKEN }}
           DT_ACCOUNT_ID: ${{ secrets.DT_ACCOUNT_ID }}
         run: |
-          terraform-provider-dynatrace export \
-            --output ${{ env.EXPORT_DIR }}
-
-      - name: Create Backup Archive
+          terraform-provider-dynatrace export --output ${{ env.EXPORT_DIR }}
+      - name: Create Archive of the backup to upload into Azure blob
         run: |
           TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
-
-          tar -czf dynatrace-config-${TIMESTAMP}.tar.gz \
-            -C ${{ env.EXPORT_DIR }} .
-
+          tar -czf dynatrace-config-${TIMESTAMP}.tar.gz -C ${{ env.EXPORT_DIR }} .
           echo "BACKUP_FILE=dynatrace-config-${TIMESTAMP}.tar.gz" >> $GITHUB_ENV
           echo "TIMESTAMP=${TIMESTAMP}" >> $GITHUB_ENV
-
-      - name: Azure Login
+      - name: Azure Login to upload the configuration into blob storage
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Upload Backup to Azure Storage
+      - name: Upload Configuration Backup into Azure Blob
         run: |
           az storage blob upload \
             --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
@@ -73,4 +64,3 @@ jobs:
             --file ${BACKUP_FILE} \
             --auth-mode login \
             --overwrite true
-
