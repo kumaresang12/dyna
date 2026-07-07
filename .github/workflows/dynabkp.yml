@@ -1,1 +1,80 @@
 
+name: Dynatrace Configuration Backup
+
+on:
+#  schedule:
+#    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  TF_WORKING_DIR: terraform/nonprod
+  EXPORT_DIR: dynatrace-backup
+
+jobs:
+  dynatrace-backup:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+
+      - name: Verify Terraform Version
+        run: terraform version
+
+      - name: Terraform Init
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        env:
+          DYNATRACE_API_URL: ${{ secrets.DYNATRACE_API_URL }}
+          DYNATRACE_API_TOKEN: ${{ secrets.DYNATRACE_API_TOKEN }}
+        run: |
+          terraform init
+
+      - name: Create Export Directory
+        run: |
+          mkdir -p ${{ env.EXPORT_DIR }}
+
+      #
+      # Replace this command with the exact Dynatrace export
+      # command used in your environment.
+      #
+      - name: Export Dynatrace Configuration
+        env:
+          DYNATRACE_API_URL: ${{ secrets.DYNATRACE_API_URL }}
+          DYNATRACE_API_TOKEN: ${{ secrets.DYNATRACE_API_TOKEN }}
+        run: |
+          terraform-provider-dynatrace export \
+            --output ${{ env.EXPORT_DIR }}
+
+      - name: Create Backup Archive
+        run: |
+          TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
+
+          tar -czf dynatrace-config-${TIMESTAMP}.tar.gz \
+            -C ${{ env.EXPORT_DIR }} .
+
+          echo "BACKUP_FILE=dynatrace-config-${TIMESTAMP}.tar.gz" >> $GITHUB_ENV
+          echo "TIMESTAMP=${TIMESTAMP}" >> $GITHUB_ENV
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Upload Backup to Azure Storage
+        run: |
+          az storage blob upload \
+            --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
+            --container-name dynatrace-backups \
+            --name dynatrace/${TIMESTAMP}/${BACKUP_FILE} \
+            --file ${BACKUP_FILE} \
+            --auth-mode login \
+            --overwrite true
+
