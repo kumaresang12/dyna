@@ -37,18 +37,30 @@ jobs:
           terraform init
 
       - name: Create Export Directory as dynatrace_backup
+        working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
           mkdir -p ${{ env.EXPORT_DIR }}
-          cd ${{ env.TF_WORKING_DIR }}
+          
+      - name: Find the terrform-provider-dynatrace executable
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: |
+          PROVIDER_BIN=$(find .terraform/providers/registry.terraform.io/dynatrace-oss/dynatrace \
+            -type f \
+            -name "terraform-provider-dynatrace*" | head -n 1)
+          echo "Provider Binary: $PROVIDER_BIN"
 
       - name: Export Dynatrace Configuration using terraform-provider-dynatrace
+        working-directory: ${{ env.TF_WORKING_DIR }}
         env:
           DYNATRACE_API_URL: ${{ secrets.DYNATRACE_API_URL }}
           DYNATRACE_API_TOKEN: ${{ secrets.DYNATRACE_API_TOKEN }}
           DT_ACCOUNT_ID: ${{ secrets.DT_ACCOUNT_ID }}
         run: |
-          terraform-provider-dynatrace export --output ${{ env.EXPORT_DIR }}
+          chmod +x "$PROVIDER_BIN"
+          "$PROVIDER_BIN" export --output ${{ env.EXPORT_DIR }}
+          
       - name: Create Archive of the backup to upload into Azure blob
+        working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
           TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
           tar -czf dynatrace-config-${TIMESTAMP}.tar.gz -C ${{ env.EXPORT_DIR }} .
@@ -62,6 +74,7 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Upload Configuration Backup into Azure Blob
+        working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
           az storage blob upload \
             --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
