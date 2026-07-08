@@ -32,11 +32,6 @@ jobs:
         run: |
           terraform init
 
-      - name: Create Export Directory as dynatrace_backup
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: |
-          mkdir -p ${{ env.EXPORT_DIR }}
-          
       - name: Find the terrform-provider-dynatrace executable and Export Dynatrace Configuration using terraform-provider-dynatrace
         working-directory: ${{ env.TF_WORKING_DIR }}
         env:
@@ -64,5 +59,5 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
           BACKUP_FILE="np-dynatrace-config-${TIMESTAMP}.tar.gz"
-          tar -czf "$BACKUP_FILE" "$EXPORT_DIR"/modules/*
+          tar -czf "$BACKUP_FILE" "$EXPORT_DIR"/*
           echo "BACKUP_FILE=$BACKUP_FILE" >> $GITHUB_ENV
