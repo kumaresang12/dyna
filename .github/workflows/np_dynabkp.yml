@@ -36,7 +36,6 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
           mkdir -p ${{ env.EXPORT_DIR }}
-          pwd
           
       - name: Find the terrform-provider-dynatrace executable and Export Dynatrace Configuration using terraform-provider-dynatrace
         working-directory: ${{ env.TF_WORKING_DIR }}
@@ -45,7 +44,6 @@ jobs:
           DYNATRACE_API_TOKEN: ${{ secrets.NP_DYNATRACE_API_TOKEN }}
           DT_ACCOUNT_ID: ${{ secrets.DT_ACCOUNT_ID }}
         run: |
-          pwd
           export DYNATRACE_ENV_URL=$DYNATRACE_ENV_URL
           export DYNATRACE_API_TOKEN=$DYNATRACE_API_TOKEN
           export DT_ACCOUNT_ID=$DT_ACCOUNT_ID
@@ -53,22 +51,18 @@ jobs:
             -type f \
             -name "terraform-provider-dynatrace*" | head -n 1)
           echo "Provider Binary: $PROVIDER_BIN"
-          pwd
-          #chmod +x "$PROVIDER_BIN"
           "$PROVIDER_BIN" -export
           
       - name: Capture export dir and timestamp from terraform outputs
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
-          EXPORT_DIR=$(terraform output -raw export_dir)
-          TIMESTAMP=$(terraform output -raw timestamp)
-          echo "EXPORT_DIR=$EXPORT_DIR" >> $GITHUB_ENV
+          TIMESTAMP=$(date -u +"%Y%m%d-%H%M%S")
+          echo "EXPORT_DIR=configuration/modules" >> $GITHUB_ENV
           echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_ENV
          
       - name: Create Archive of the backup to upload into Azure blob
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
           BACKUP_FILE="np-dynatrace-config-${TIMESTAMP}.tar.gz"
-          #tar -czf "$BACKUP_FILE" -C "$EXPORT_DIR"
           tar -czf "$BACKUP_FILE" "$EXPORT_DIR"/modules/*
           echo "BACKUP_FILE=$BACKUP_FILE" >> $GITHUB_ENV
