@@ -59,14 +59,14 @@ jobs:
         run: |
           EXPORT_DIR=$(terraform output -raw export_dir)
           TIMESTAMP=$(terraform output -raw timestamp)
-          echo $EXPORT_DIR=$EXPORT_DIR" >> $GITHUB_ENV
-          echo $TIMESTAMP=$TIMESTAMP" >> $GITHUB_ENV
+          echo "$EXPORT_DIR=$EXPORT_DIR" >> $GITHUB_ENV
+          echo "$TIMESTAMP=$TIMESTAMP" >> $GITHUB_ENV
          
       - name: Create Archive of the backup to upload into Azure blob
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
           BACKUP_FILE="dynatrace-config-${TIMESTAMP}.tar.gz"
-          tar -czf "$BACKUP_FILE" ${{ env.TF_WORKING_DIR }}/${EXPORT_DIR}/${TIMESTAMP}/modules/*
+          tar -czf "$BACKUP_FILE" -C "$EXPORT_DIR"
           echo "BACKUP_FILE=$BACKUP_FILE" >> $GITHUB_ENV
           
       - name: Azure Login to upload the configuration into blob storage
