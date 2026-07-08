@@ -1,4 +1,4 @@
-name: Dynatrace Configuration Backup and tar locally
+name: Non-Prod Dynatrace Configuration Backup and tar locally
 'on':
     workflow_dispatch:
 
