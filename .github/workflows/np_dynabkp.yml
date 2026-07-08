@@ -53,8 +53,11 @@ jobs:
           DT_ACCOUNT_ID: ${{ secrets.DT_ACCOUNT_ID }}
         run: |
           export DYNATRACE_API_URL=$DYNATRACE_API_URL 
+          echo " DYNATRACE_API_URL=$DYNATRACE_API_URL" >> $GITHUB_ENV
           export DYNATRACE_API_TOKEN=$DYNATRACE_API_TOKEN
+          echo "DYNATRACE_API_TOKEN=$DYNATRACE_API_TOKEN" >> $GITHUB_ENV
           export DT_ACCOUNT_ID=$DT_ACCOUNT_ID
+          echo "DT_ACCOUNT_ID=$DT_ACCOUNT_ID" >> $GITHUB_ENV
           terraform apply -auto-approve
 
       - name: Capture export dir and timestamp from terraform outputs
