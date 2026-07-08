@@ -32,8 +32,31 @@ jobs:
         run: |
           terraform init
 
-
-
+      - name: Create Export Directory as dynatrace_backup
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: |
+          mkdir -p ${{ env.EXPORT_DIR }}
+          pwd
+          
+      - name: Find the terrform-provider-dynatrace executable and Export Dynatrace Configuration using terraform-provider-dynatrace
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        env:
+          DYNATRACE_ENV_URL: ${{ vars.NP_DYNATRACE_API_URL }}
+          DYNATRACE_API_TOKEN: ${{ secrets.NP_DYNATRACE_API_TOKEN }}
+          DT_ACCOUNT_ID: ${{ secrets.DT_ACCOUNT_ID }}
+        run: |
+          pwd
+          export DYNATRACE_ENV_URL=$DYNATRACE_ENV_URL
+          export DYNATRACE_API_TOKEN=$DYNATRACE_API_TOKEN
+          export DT_ACCOUNT_ID=$DT_ACCOUNT_ID
+          PROVIDER_BIN=$(find .terraform/providers/registry.terraform.io/dynatrace-oss/dynatrace \
+            -type f \
+            -name "terraform-provider-dynatrace*" | head -n 1)
+          echo "Provider Binary: $PROVIDER_BIN"
+          pwd
+          #chmod +x "$PROVIDER_BIN"
+          "$PROVIDER_BIN" -export
+          
       - name: Capture export dir and timestamp from terraform outputs
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
