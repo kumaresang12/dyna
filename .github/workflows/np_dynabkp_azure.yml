@@ -1,4 +1,4 @@
-name: Dynatrace Configuration Backup and upload in Azure Blob storage 
+name: Non-Prod Dynatrace Configuration Backup and upload in Azure Blob storage 
 'on':
     workflow_dispatch:
 
