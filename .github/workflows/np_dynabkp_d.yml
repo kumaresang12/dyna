@@ -3,7 +3,7 @@ name: Dynatrace Configuration Backup and upload in Azure Blob storage
     workflow_dispatch:
 
 env:
-  TF_WORKING_DIR: terraform/nonprod
+  TF_WORKING_DIR: backup
   EXPORT_DIR: dynatrace_backup
 
 jobs:
