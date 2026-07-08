@@ -1,4 +1,4 @@
-name: Dynatrace Configuration Backup and upload in Azure Blob storage 
+name: Dynatrace Configuration Backup and tar locally
 'on':
     workflow_dispatch:
 
