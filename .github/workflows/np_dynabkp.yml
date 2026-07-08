@@ -48,14 +48,18 @@ jobs:
       - name: Apply the terraform code
         working-directory: ${{ env.TF_WORKING_DIR }}
         env:
-          DYNATRACE_API_URL: ${{ vars.NP_DYNATRACE_API_URL }}
+          DYNATRACE_ENV_URL: ${{ vars.NP_DYNATRACE_API_URL }}
           DYNATRACE_API_TOKEN: ${{ secrets.NP_DYNATRACE_API_TOKEN }}
           DT_ACCOUNT_ID: ${{ secrets.DT_ACCOUNT_ID }}
         run: |
-          export DYNATRACE_API_URL=$DYNATRACE_API_URL 
-          echo " DYNATRACE_API_URL=$DYNATRACE_API_URL" >> $GITHUB_ENV
+          set +x
+          echo "DYNATRACE_ENV_URL=$DYNATRACE_API_URL"
+          export DYNATRACE_ENV_URL=$DYNATRACE_API_URL 
+          echo "DYNATRACE_ENV_URL=$DYNATRACE_API_URL" >> $GITHUB_ENV
+          echo "DYNATRACE_API_TOKEN=$DYNATRACE_API_TOKEN"
           export DYNATRACE_API_TOKEN=$DYNATRACE_API_TOKEN
           echo "DYNATRACE_API_TOKEN=$DYNATRACE_API_TOKEN" >> $GITHUB_ENV
+          echo "DT_ACCOUNT_ID=$DT_ACCOUNT_ID"
           export DT_ACCOUNT_ID=$DT_ACCOUNT_ID
           echo "DT_ACCOUNT_ID=$DT_ACCOUNT_ID" >> $GITHUB_ENV
           terraform apply -auto-approve
