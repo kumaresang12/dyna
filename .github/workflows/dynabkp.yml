@@ -59,8 +59,8 @@ jobs:
         run: |
           EXPORT_DIR=$(terraform output -raw export_dir)
           TIMESTAMP=$(terraform output -raw timestamp)
-          echo "$EXPORT_DIR=$EXPORT_DIR" >> $GITHUB_ENV
-          echo "$TIMESTAMP=$TIMESTAMP" >> $GITHUB_ENV
+          echo "EXPORT_DIR=$EXPORT_DIR" >> $GITHUB_ENV
+          echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_ENV
          
       - name: Create Archive of the backup to upload into Azure blob
         working-directory: ${{ env.TF_WORKING_DIR }}
