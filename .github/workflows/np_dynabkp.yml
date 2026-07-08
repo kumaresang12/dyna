@@ -52,6 +52,9 @@ jobs:
           DYNATRACE_API_TOKEN: ${{ secrets.NP_DYNATRACE_API_TOKEN }}
           DT_ACCOUNT_ID: ${{ secrets.DT_ACCOUNT_ID }}
         run: |
+          export DYNATRACE_API_URL=$DYNATRACE_API_URL 
+          export DYNATRACE_API_TOKEN=$DYNATRACE_API_TOKEN
+          export DT_ACCOUNT_ID=$DT_ACCOUNT_ID
           terraform apply -auto-approve
 
       - name: Capture export dir and timestamp from terraform outputs
