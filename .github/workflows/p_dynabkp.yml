@@ -62,7 +62,7 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
           BACKUP_FILE="p-dynatrace-config-${TIMESTAMP}.tar.gz"
-          tar -czf "$BACKUP_FILE" "$EXPORT_DIR"/modules/*
+          tar -czf "$BACKUP_FILE" "$EXPORT_DIR"/*
           echo "BACKUP_FILE=$BACKUP_FILE" >> $GITHUB_ENV
 
       - name: Copy backup file to backup dir
