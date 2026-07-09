@@ -2,6 +2,9 @@ name: Non-Prod Dynatrace Configuration Backup and tar locally
 'on':
     workflow_dispatch:
 
+permissions: 
+  contents: write
+  
 env:
   TF_WORKING_DIR: terraform/nonprod
   EXPORT_DIR: dynatrace_backup
