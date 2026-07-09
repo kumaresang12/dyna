@@ -3,8 +3,7 @@ name: Non-Prod Dynatrace Configuration Backup and tar locally
     workflow_dispatch:
 
     schedule:
-      - cron: "56 19 * * *"
-        timezone: "America/Los_angeles"
+      - cron: "59 02 * * *"
 
 permissions: 
   contents: write
