@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout Repository 
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install unzip
         run: |
@@ -61,3 +63,18 @@ jobs:
           BACKUP_FILE="np-dynatrace-config-${TIMESTAMP}.tar.gz"
           tar -czf "$BACKUP_FILE" "$EXPORT_DIR"/*
           echo "BACKUP_FILE=$BACKUP_FILE" >> $GITHUB_ENV
+
+      - name: Copy backup file to backup dir
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: |
+          cp "$BACKUP_FILE" ../../backup/nonprod/.
+      
+      - name: Commit and push to github backup
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          cd ../..
+          git add backup/nonprod/
+          git commit -m "Add Dynatrace nonprod backup ${TIMESTAMP}" || echo "No changes to commit"
+          git push origin HEAD:${GITHUB_REF_NAME}
