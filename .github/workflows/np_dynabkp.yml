@@ -20,6 +20,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          sparse-checkout: |
+            terraform/nonprod
+          sparse-checkout-cone-mode: true
 
       - name: Install unzip
         run: |
@@ -73,14 +76,16 @@ jobs:
       - name: Copy backup file to backup dir
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
-          cp "$BACKUP_FILE" ../../backup/nonprod/.
+          #cp "$BACKUP_FILE" ../../backup/nonprod/.
+          cp "$BACKUP_FILE" backup/.
       
       - name: Commit and push to github backup
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          cd ../..
-          git add backup/nonprod/
+          #cd ../..
+          #git add backup/nonprod/
+          git add backup/
           git commit -m "Add Dynatrace nonprod backup ${TIMESTAMP}" || echo "No changes to commit"
           git push origin HEAD:${GITHUB_REF_NAME}
